@@ -14,8 +14,8 @@ import (
 var (
 	token    = kingpin.Arg("token", "StatHat access token (https://www.stathat.com/access)").Required().String()
 	filename = kingpin.Arg("filename", "Output filename; needs to be something.xlsx").Required().String()
-	period   = kingpin.Arg("period", "Data period (like 1M, 2w, etc)").Default("1w").String()
 	stats    = kingpin.Arg("stats", "Stat IDs to fetch").Required().Strings()
+	period   = kingpin.Flag("period", "Data period (like 1M, 2w, etc)").Short('p').Default("1w").String()
 	timezone = kingpin.Flag("timezone", "Override timezone").Short('z').String()
 )
 
@@ -60,7 +60,8 @@ func main() {
 			title := row.AddCell()
 			title.SetString(stat.Name)
 			title.SetStyle(titleStyle)
-			for _, point := range stat.Points {
+			for i := len(stat.Points) - 1; i >= 0; i-- {
+				point := stat.Points[i]
 				row := sheet.AddRow()
 				row.AddCell().SetDate(point.Time)
 				row.AddCell().SetFloat(point.Value)

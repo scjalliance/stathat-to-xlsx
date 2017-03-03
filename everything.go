@@ -12,11 +12,13 @@ import (
 )
 
 var (
-	token    = kingpin.Arg("token", "StatHat access token (https://www.stathat.com/access)").Required().String()
-	filename = kingpin.Arg("filename", "Output filename; needs to be something.xlsx").Required().String()
-	stats    = kingpin.Arg("stats", "Stat IDs to fetch").Required().Strings()
-	period   = kingpin.Flag("period", "Data period (like 1M, 2w, etc)").Short('p').Default("1w").String()
-	timezone = kingpin.Flag("timezone", "Override timezone").Short('z').String()
+	token      = kingpin.Arg("token", "StatHat access token (https://www.stathat.com/access)").Required().String()
+	filename   = kingpin.Arg("filename", "Output filename; needs to be something.xlsx").Required().String()
+	stats      = kingpin.Arg("stats", "Stat IDs to fetch").Required().Strings()
+	period     = kingpin.Flag("period", "Data period (like 1M, 2w, etc)").Short('p').Default("1w").String()
+	timezone   = kingpin.Flag("timezone", "Override timezone").Short('z').String()
+	datetype   = kingpin.Flag("datetype", "Date Type").Short('t').Default("date").Enum("date", "string", "epoch")
+	dateformat = kingpin.Flag("dateformat", "Date Format (https://golang.org/pkg/time/#Time.Format)").Short('f').Default("2006/01/02").String()
 )
 
 var l = log.New(os.Stderr, "", 0)
@@ -63,7 +65,13 @@ func main() {
 			for i := len(stat.Points) - 1; i >= 0; i-- {
 				point := stat.Points[i]
 				row := sheet.AddRow()
-				row.AddCell().SetDate(point.Time)
+				if *datetype == "date" {
+					row.AddCell().SetDate(point.Time)
+				} else if *datetype == "epoch" {
+					row.AddCell().SetInt64(point.Time.Unix())
+				} else if *datetype == "string" {
+					row.AddCell().SetString(point.Time.Format(*dateformat))
+				}
 				row.AddCell().SetFloat(point.Value)
 			}
 		}

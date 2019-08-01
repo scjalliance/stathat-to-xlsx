@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dustywilson/stathat"
+	"github.com/gentlemanautomaton/stathat"
 	"github.com/tealeg/xlsx"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
